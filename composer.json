@@ -1,0 +1,18 @@
+{
+    "repositories":[
+        {
+            "type":"composer",
+            "url":"http://wpackagist.org"
+        }
+    ],
+    "name": "nikolai/hiinapakkumine.ee",
+    "authors": [
+        {
+            "name": "Nikolai Muhhin",
+            "email": "nikolai.muhhin@gmail.com"
+        }
+    ],
+    "require": {
+        "inori/banklink":"*"
+    }
+}
