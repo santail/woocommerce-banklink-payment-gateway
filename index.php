@@ -500,9 +500,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             }
 
-            /**
-             *
-             */
             function payment_fields()
             {
                 echo '<table class="crt_3" id="bank_links"> <tbody><tr> <td class="p10" align="center"> <nobr> ';
