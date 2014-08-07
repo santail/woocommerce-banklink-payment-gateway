@@ -94,14 +94,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_Gateway_Banklink extends WC_Payment_Gateway
         {
             var $banks = array(
-                "danske" => array('title' => 'Sampo', 'url' => 'https://www2.danskebank.ee/ibank/pizza/pizza', 'charset_parameter' => '', 'charset' => 'iso-8859-1'),
-                "lhv" => array("title" => 'LHV Pank', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "nordea" => array("title" => 'Nordea', "url" => 'https://netbank.nordea.com/pnbepay/epayn.jsp', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "seb" => array("title" => 'SEB', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "swedbank" => array('title' => 'Swedbank', 'url' => 'https://www.swedbank.ee/banklink', 'charset_parameter' => 'VK_ENCODING', 'charset' => 'utf-8'),
-                "estcard" => array("title" => 'Pankade Kaardikeskus', "url" => 'https://pos.estcard.ee/ecom/iPayServlet', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "credit" => array("title" => 'Krediidipank', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "emt" => array("title" => 'EMT', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8')
+                "danske" => array('class' => 'DanskeBank', 'protocol' => 'iPizza', 'title' => 'Danske Bank', 'url' => 'https://www2.danskebank.ee/ibank/pizza/pizza', 'charset_parameter' => '', 'charset' => 'iso-8859-1'),
+                "lhv" => array('class' => 'LHV', 'protocol' => 'iPizza', "title" => 'LHV Pank', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
+                "nordea" => array('class' => 'Nordea', 'protocol' => 'iPizza', "title" => 'Nordea', "url" => 'https://netbank.nordea.com/pnbepay/epayn.jsp', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
+                "seb" => array('class' => 'SEB', 'protocol' => 'iPizza', "title" => 'SEB', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
+                "swedbank" => array('class' => 'Swedbank', 'protocol' => 'iPizza', 'title' => 'Swedbank', 'url' => 'https://www.swedbank.ee/banklink', 'charset_parameter' => 'VK_ENCODING', 'charset' => 'utf-8'),
+                "estcard" => array('class' => 'SEB', 'protocol' => 'iPizza', "title" => 'Pankade Kaardikeskus', "url" => 'https://pos.estcard.ee/ecom/iPayServlet', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8')
             );
 
             public function __construct()
@@ -526,9 +524,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 echo $this->generate_banklink_form($order_id);
             }
 
-            /**
-             * Generate payu button link
-             **/
             function generate_banklink_form($order_id)
             {
                 global $woocommerce;
@@ -540,46 +535,55 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     $testmode = true;
                 }
 
-                $redirect_url = ($this->redirect_page_id == "" || $this->redirect_page_id == 0) ? get_site_url() . "/" : get_permalink($this->redirect_page_id);
-
                 $product_info = "Order $order_id";
 
-                /*                $woocommerce->add_inline_js('
-                                    jQuery("body").block({
-                                        message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to PayPal to make payment.', 'woocommerce' ) ) . '",
-                                        baseZ: 99999,
-                                        overlayCSS: {
-                                            background: "#fff",
-                                            opacity: 0.6
-                                        },
-                                        css: {
-                                            padding:        "20px",
-                                            zindex:         "9999999",
-                                            textAlign:      "center",
-                                            color:          "#555",
-                                            border:         "3px solid #aaa",
-                                            backgroundColor:"#fff",
-                                            cursor:         "wait",
-                                            lineHeight:		"24px",
-                                        }
-                                    });
-                                    jQuery("#submit_banklink_payment_form").click();
-                                ');*/
+                if ($this->settings) {
+                    $woocommerce->add_inline_js('
+                        jQuery("body").block({
+                            message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to PayPal to make payment.', 'woocommerce' ) ) . '",
+                            baseZ: 99999,
+                            overlayCSS: {
+                                background: "#fff",
+                                opacity: 0.6
+                            },
+                            css: {
+                                padding:        "20px",
+                                zindex:         "9999999",
+                                textAlign:      "center",
+                                color:          "#555",
+                                border:         "3px solid #aaa",
+                                backgroundColor:"#fff",
+                                cursor:         "wait",
+                                lineHeight:		"24px",
+                            }
+                        });
+                        jQuery("#submit_banklink_payment_form").click();
+                    ');
+                }
 
-                $protocol = new \Banklink\Protocol\iPizza('uid401777', 'TeadOstad OU', '991234567897',
-                    __DIR__ . '/data/iPizza/private_key.pem', // private
-                    __DIR__ . '/data/iPizza/public_key.pem', // public
-                    $redirect_url, true);
+                $payment_method = $order->order_custom_fields['banklink_sel_bank'][0];
 
-                $swedbank = new \Banklink\Swedbank($protocol, $testmode);
+                $bank = $this->banks[$payment_method];
+                $protocol_name = '\Banklink\Protocol\\' . $bank['protocol'];
 
-                $swedbankRequest = $swedbank->preparePaymentRequest($order_id, $order->order_total, $product_info);
+                $protocol = new  $protocol_name($this->settings[$payment_method . '_merchant_id'],
+                    $this->settings[$payment_method . '_merchant_name'],
+                    $this->settings[$payment_method . '_merchant_account'],
+                    __DIR__ . '/data/' . $payment_method . '/private_key.pem', // private
+                    __DIR__ . '/data/' .$payment_method .'/public_key.pem', // public
+                    add_query_arg( 'utm_nooverride', '1', $this->get_return_url( $order ) ), true);
 
-                return '<form action="' . esc_url($swedbankRequest->getRequestUrl()) . '" method="post">' .
-                $swedbankRequest->buildRequestHtml() .
-                '<input type="submit" class="button alt" id="submit_banklink_payment_form" value="' . __('Pay via Swedbank', 'wc-gateway-banklink') . '" />
-                            <a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart', 'wc-gateway-banklink') . '</a>
-                        </form>';
+                $bank_name = '\Banklink\\' . $bank['class'];
+
+                $bank = new $bank_name($protocol, $testmode);
+
+                $paymentRequest = $bank->preparePaymentRequest($order_id, $order->order_total, $product_info);
+
+                return '<form action="' . esc_url($paymentRequest->getRequestUrl()) . '" method="post">' .
+                    $paymentRequest->buildRequestHtml() .
+                    '<input type="submit" class="button alt" id="submit_banklink_payment_form" value="' . __('Pay via Swedbank', 'wc-gateway-banklink') . '" />
+                    <a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart', 'wc-gateway-banklink') . '</a>
+                </form>';
             }
 
             /**
@@ -681,7 +685,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 return '<div class="box ' . $this->msg['class'] . '-box">' . $this->msg['message'] . '</div>' . $content;
             }
 
-            // get all pages
             function get_pages($title = false, $indent = true)
             {
                 $wp_pages = get_pages('sort_column=menu_order');
