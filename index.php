@@ -72,9 +72,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
     add_filter('woocommerce_locate_template', 'woocommerce_gateway_banklink_locate_template', 10, 3);
 
-    add_action('plugins_loaded', 'woocommerce_gateway_banklink_init', 0);
     add_action('admin_enqueue_scripts', 'init_banklink_admin_scripts');
     add_action('wp_enqueue_scripts', 'init_banklink_frontend_scripts');
+
+    // initialize banklink payment gateway plugin on woocommerce start
+    add_action('plugins_loaded', 'woocommerce_gateway_banklink_init', 0);
 
     function woocommerce_gateway_banklink_init()
     {
