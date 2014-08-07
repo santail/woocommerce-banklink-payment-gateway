@@ -288,9 +288,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $this->form_fields = array_merge($this->main_fields, $this->option_fields);
             }
             
-            /**
-             *
-             */
             public function admin_options()
             {
                 echo '<div id="banklink-properties">';
