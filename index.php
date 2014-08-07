@@ -517,23 +517,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 echo '</div>';
             }
 
-            /**
-             * Output for the order received page.
-             *
-             * @access public
-             * @param $order
-             * @return void
-             */
-            function receipt_page($order)
+            function receipt_page($order_id)
             {
                 global $woocommerce;
 
                 echo '<p>' . __('Thank you for your order, please click the button below to pay with PayPal.', 'woocommerce') . '</p>';
 
-                print_r($woocommerce->checkout());
-
-
-                echo $this->generate_banklink_form($order);
+                echo $this->generate_banklink_form($order_id);
             }
 
             /**
