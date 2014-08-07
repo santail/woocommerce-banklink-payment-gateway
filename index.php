@@ -178,9 +178,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
             }
 
-            /**
-             * @return string|void
-             */
             function init_form_fields()
             {
                 $this->main_fields = array(
@@ -202,12 +199,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'type' => 'textarea',
                         'description' => __('This controls the description which the user sees during checkout.', 'wc-gateway-banklink'),
                         'default' => __('Desctiptions for Custom Payment Gateways 1.', 'wc-gateway-banklink')
-                    ),
-                    'redirect_page_id' => array(
-                        'title' => __('Return Page'),
-                        'type' => 'select',
-                        'options' => $this->get_pages('Select Page'),
-                        'description' => "URL of success page"
                     ),
                     'show_selection' => array(
                         'title' => __('Show/Hide radio buttons', 'wc-gateway-banklink'),
@@ -280,12 +271,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         ),
                         $id . '_merchant_private_key' => array(
                             'title' => __('Merchant private key', 'wc-gateway-banklink'),
-                            'type' => 'file',
+                            'type' => 'textarea',
                             'description' => __('This id seller private key')
                         ),
                         $id . '_bank_public_key' => array(
                             'title' => __('Bank public key', 'wc-gateway-banklink'),
-                            'type' => 'file',
+                            'type' => 'textarea',
                             'description' => __('This is bank public key')
                         )
                     );
@@ -296,7 +287,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->form_fields = array_merge($this->main_fields, $this->option_fields);
             }
-
+            
             /**
              *
              */
