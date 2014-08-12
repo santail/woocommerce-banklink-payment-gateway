@@ -108,7 +108,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->id = 'banklink';
                 $this->medthod_title = 'Banklink';
-                $this->icon = apply_filters('woocommerce_banklink_icon', $woocommerce->plugin_url() . '/assets/images/icons/banklink.png');
+                $this->icon = apply_filters('woocommerce_banklink_icon', plugins_url('/assets/images/icons/banklink.png', __FILE__));
                 $this->has_fields = true;
 
                 $this->init_form_fields();
@@ -270,7 +270,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->form_fields = array_merge($this->main_fields, $this->option_fields);
             }
-            
+
             public function admin_options()
             {
                 echo '<div id="banklink-properties">';
@@ -299,19 +299,27 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             function payment_fields()
             {
-                echo '<table class="crt_3" id="bank_links"> <tbody><tr> <td class="p10" align="center"> <nobr> ';
+                $container = "";
+                $is_payments_activated = false;
+
+                $container .= '<table class="crt_3" id="bank_links"> <tbody><tr> <td class="p10" align="center"> <nobr> ';
                 foreach ($this->banks as $id => $bank) {
                     if ($this->settings[$id . '_enabled'] == 'yes') {
-                        echo '<input type="radio" name="' . $this->id . '_sel_bank" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> ';
+                        $is_payments_activated |= true;
+                        $container .= '<input type="radio" name="' . $this->id . '_sel_bank" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> ';
                     }
                 }
-                echo '</nobr> </td> </tr> </tbody></table>';
+                $container .= '</nobr> </td> </tr> </tbody></table>';
 
-                echo '<div class="payment_box payment_method_' . $this->id . '" ' . ($this->chosen ? '' : 'style="display:none;"') . '>';
+                $container .= '<div class="payment_box payment_method_' . $this->id . '" ' . ($this->chosen ? '' : 'style="display:none;"') . '>';
                 if ($this->description) {
-                    echo wpautop(wptexturize($this->description));
+                    $container .= wpautop(wptexturize($this->description));
                 }
-                echo '</div>';
+                $container .= '</div>';
+
+                if ($is_payments_activated) {
+                    echo $container;
+                }
             }
 
             function receipt_page($order_id)
@@ -385,7 +393,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 </form>';
             }
 
-            function process_payment($order_id) 
+            function process_payment($order_id)
             {
                 $order = new WC_Order($order_id);
 
