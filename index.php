@@ -323,8 +323,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             {
                 global $woocommerce;
 
-                echo '<p>' . __('Thank you for your order, please click the button below to pay with PayPal.', 'woocommerce') . '</p>';
-
                 echo $this->generate_banklink_form($order_id);
             }
 
@@ -338,6 +336,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $testmode = $this->testmode == 'yes' ? true : false;
 
                 $product_info = "Order $order_id";
+
+                echo '<p>' . sprintf(__( 'Thank you for your order, please click the button below to pay with %s.', 'wc-gateway-banklink' ), $bank['title'] ) . '</p>';
 
                 if ($this->settings['submit_on_click'] == 'yes') {
                     $woocommerce->add_inline_js('
