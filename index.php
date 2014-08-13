@@ -217,52 +217,55 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $this->option_fields = array();
 
-                foreach ($this->banks as $id => $options) {
-                    $options = array(
-                        $id . '_enabled' => array(
-                            'title' => __('Enable/Disable', 'wc-gateway-banklink'),
-                            'type' => 'checkbox',
-                            'label' => __('Enable ' . $options["title"] . ' Payment Module.', 'wc-gateway-banklink'),
-                            'default' => 'no'
-                        ),
-                        $id . '_title' => array(
-                            'title' => __('Title:', 'wc-gateway-banklink'),
-                            'type' => 'text',
-                            'description' => __('This controls the title which the user sees during checkout.', 'wc-gateway-banklink'),
-                            'default' => __($options["title"], 'wc-gateway-banklink')
-                        ),
-                        $id . '_description' => array(
-                            'title' => __('Description:', 'wc-gateway-banklink'),
-                            'type' => 'textarea',
-                            'description' => __('This controls the description which the user sees during checkout.', 'wc-gateway-banklink'),
-                            'default' => __('Pay securely by Credit or Debit card or internet banking through Banklink payment services.', 'wc-gateway-banklink')
-                        ),
-                        $id . '_merchant_id' => array(
-                            'title' => __('Merchant ID', 'wc-gateway-banklink'),
-                            'type' => 'text',
-                            'description' => __('This id seller ID')
-                        ),
-                        $id . '_merchant_name' => array(
-                            'title' => __('Merchant name', 'wc-gateway-banklink'),
-                            'type' => 'text',
-                            'description' => __('This id seller name')
-                        ),
-                        $id . '_merchant_account' => array(
-                            'title' => __('Merchant account', 'wc-gateway-banklink'),
-                            'type' => 'text',
-                            'description' => __('This id seller account')
-                        ),
-                        $id . '_merchant_private_key' => array(
-                            'title' => __('Merchant private key', 'wc-gateway-banklink'),
-                            'type' => 'textarea',
-                            'description' => __('This id seller private key')
-                        ),
-                        $id . '_bank_public_key' => array(
-                            'title' => __('Bank public key', 'wc-gateway-banklink'),
-                            'type' => 'textarea',
-                            'description' => __('This is bank public key')
-                        )
+                foreach ($this->banks as $id => $settings) {
+                    $options = array();
+                    
+                    $options[$id . '_enabled'] = array(
+                        'title' => __('Enable/Disable', 'wc-gateway-banklink'),
+                        'type' => 'checkbox',
+                        'label' => __('Enable ' . $settings["title"] . ' Payment Module.', 'wc-gateway-banklink'),
+                        'default' => 'no'
                     );
+                    $options[$id . '_title'] = array(
+                        'title' => __('Title:', 'wc-gateway-banklink'),
+                        'type' => 'text',
+                        'description' => __('This controls the title which the user sees during checkout.', 'wc-gateway-banklink'),
+                        'default' => __($settings["title"], 'wc-gateway-banklink')
+                    );
+                    $options[$id . '_description'] = array(
+                        'title' => __('Description:', 'wc-gateway-banklink'),
+                        'type' => 'textarea',
+                        'description' => __('This controls the description which the user sees during checkout.', 'wc-gateway-banklink'),
+                        'default' => __('Pay securely by Credit or Debit card or internet banking through Banklink payment services.', 'wc-gateway-banklink')
+                    );
+                    $options[$id . '_merchant_id'] = array(
+                        'title' => __('Merchant ID', 'wc-gateway-banklink'),
+                        'type' => 'text',
+                        'description' => __('This id seller ID')
+                    );
+                    $options[$id . '_merchant_name'] = array(
+                        'title' => __('Merchant name', 'wc-gateway-banklink'),
+                        'type' => 'text',
+                        'description' => __('This id seller name')
+                    );
+                    $options[$id . '_merchant_account'] = array(
+                        'title' => __('Merchant account', 'wc-gateway-banklink'),
+                        'type' => 'text',
+                        'description' => __('This id seller account')
+                    );
+                    $options[$id . '_merchant_private_key'] = array(
+                        'title' => __('Merchant private key', 'wc-gateway-banklink'),
+                        'type' => 'textarea',
+                        'description' => __('This id seller private key')
+                    );
+                    
+                if ($settings['protocol'] == 'iPizza') {
+                    $options[$id . '_bank_public_key'] = array(
+                        'title' => __('Bank public key', 'wc-gateway-banklink'),
+                        'type' => 'textarea',
+                        'description' => __('This is bank public key')
+                    );
+                }
 
                     $this->option_properties[$id] = $options;
                     $this->option_fields = array_merge($this->option_fields, $options);
@@ -282,15 +285,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 echo '</table>';
 
                 echo '<h2 class="nav-tab-wrapper">';
-                foreach ($this->banks as $id => $options) {
-                    echo '<a href="#tabs-banklink-' . $id . '" class="nav-tab">' . __($options["title"], 'wc-gateway-banklink') . '</a>';
+                foreach ($this->banks as $id => $settings) {
+                    echo '<a href="#tabs-banklink-' . $id . '" class="nav-tab">' . __($settings["title"], 'wc-gateway-banklink') . '</a>';
                 }
                 echo '</h2>';
 
-                foreach ($this->option_properties as $id => $options) {
+                foreach ($this->option_properties as $id => $settings) {
                     echo '<div id="tabs-banklink-' . $id . '" style="display: none;">';
                     echo '<table class="form-table">';
-                    $this->generate_settings_html($options);
+                    $this->generate_settings_html($settings);
                     echo '</table>';
                     echo '</div>';
                 }
