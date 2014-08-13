@@ -175,13 +175,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'type' => 'text',
                         'description' => __('This controls the title which the user sees during checkout.', 'wc-gateway-banklink'),
                         'desc_tip' => true,
-                        'default' => __('Custom Payment Gateways 1', 'wc-gateway-banklink')
+                        'default' => __('Baltic banks internet services', 'wc-gateway-banklink')
                     ),
                     'description' => array(
                         'title' => __('Description', 'wc-gateway-banklink'),
                         'type' => 'textarea',
                         'description' => __('This controls the description which the user sees during checkout.', 'wc-gateway-banklink'),
-                        'default' => __('Desctiptions for Custom Payment Gateways 1.', 'wc-gateway-banklink')
+                        'default' => __('Baltic banks internet services (payment, authentication)', 'wc-gateway-banklink')
                     ),
                     'show_selection' => array(
                         'title' => __('Show/Hide radio buttons', 'wc-gateway-banklink'),
@@ -205,7 +205,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'type' => 'checkbox',
                         'label' => __('Enable Banklink sandbox', 'wc-gateway-banklink'),
                         'default' => 'yes',
-                        'description' => sprintf(__('Banklink sandbox can be used to test payments. Sign up for a developer account <a href="%s">here</a>.', 'wc-gateway-banklink'), 'https://developer.paypal.com/'),
+                        'description' => sprintf(__('Banklink sandbox can be used to test payments. Sign up for a developer account <a href="%s">here</a>.', 'wc-gateway-banklink'), 'http://banklink.inoryy.com/'),
                     ),
                     'debug' => array(
                         'title' => __('Debug Log', 'woocommerce'),
@@ -235,7 +235,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             'title' => __('Description:', 'wc-gateway-banklink'),
                             'type' => 'textarea',
                             'description' => __('This controls the description which the user sees during checkout.', 'wc-gateway-banklink'),
-                            'default' => __('Pay securely by Credit or Debit card or internet banking through Swedbank Secure Servers.', 'wc-gateway-banklink')
+                            'default' => __('Pay securely by Credit or Debit card or internet banking through Banklink payment services.', 'wc-gateway-banklink')
                         ),
                         $id . '_merchant_id' => array(
                             'title' => __('Merchant ID', 'wc-gateway-banklink'),
@@ -287,10 +287,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 }
                 echo '</h2>';
 
-                foreach ($this->option_properties as $id => $properties) {
+                foreach ($this->option_properties as $id => $options) {
                     echo '<div id="tabs-banklink-' . $id . '" style="display: none;">';
                     echo '<table class="form-table">';
-                    $this->generate_settings_html($properties);
+                    $this->generate_settings_html($options);
                     echo '</table>';
                     echo '</div>';
                 }
@@ -382,13 +382,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             $this->settings[$payment_method . '_merchant_account'],
                             $tempPrivateKeyFile, // private
                             $tempPublicKeyFile, // public
-                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ), 
+                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ),
                             true);
                         break;
                     case 'Solo':
                         $protocol = new  \Banklink\Protocol\Solo($this->settings[$payment_method . '_merchant_id'],
                             $this->settings[$payment_method . '_merchant_private_key'],
-                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ), 
+                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ),
                             $this->settings[$payment_method . '_merchant_name'],
                             $this->settings[$payment_method . '_merchant_account']);
                         break;
@@ -408,15 +408,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     <a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart', 'wc-gateway-banklink') . '</a>
                 </form>';
             }
-            
-            function createTemporalFileforKey($prefix, $content) 
+
+            function createTemporalFileforKey($prefix, $content)
             {
                 $tempFile = tempnam(sys_get_temp_dir(), $prefix);
-                
+
                 $handle = fopen($tempFile, "w");
                 fwrite($handle, $content);
                 fclose($handle);
-                
+
                 return $tempFile;
             }
 
