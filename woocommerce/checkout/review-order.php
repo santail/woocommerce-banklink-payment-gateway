@@ -133,6 +133,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                         if ($gateway->id == 'banklink') {
                         ?>
                         <li class="payment_method_<?php echo $gateway->id; ?>">
+                        	<?php if ($gateway->show_selection == true): ?>
+                            <input id="payment_method_<?php echo $gateway->id; ?>" type="radio" class="input-radio" name="payment_method" value="<?php echo esc_attr( $gateway->id ); ?>" <?php checked( $gateway->chosen, true ); ?> data-order_button_text="<?php echo esc_attr( $gateway->order_button_text ); ?>" />
+                            <?php endif; ?>
+                            
                             <input id="payment_method_<?php echo $gateway->id; ?>" type="radio" class="input-radio" name="payment_method" value="<?php echo esc_attr( $gateway->id ); ?>" <?php checked( $gateway->chosen, true ); ?> data-order_button_text="<?php echo esc_attr( $gateway->order_button_text ); ?>" />
                             <label for="payment_method_<?php echo $gateway->id; ?>"><?php echo $gateway->get_title(); ?></label>
                             <?php
@@ -140,6 +144,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                                 $gateway->payment_fields();
                             endif;
                             ?>
+                            <?php
+							if ( $gateway->get_description() ) :
+								echo '<div class="payment_box payment_method_' . $gateway->id . '" ' . ( $gateway->chosen ? '' : 'style="display:none;"' ) . '>';
+								$gateway->get_description();
+								echo '</div>';
+							endif;
+							?>
                         </li>
                         <?php
                         }

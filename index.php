@@ -219,7 +219,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 foreach ($this->banks as $id => $settings) {
                     $options = array();
-                    
+
                     $options[$id . '_enabled'] = array(
                         'title' => __('Enable/Disable', 'wc-gateway-banklink'),
                         'type' => 'checkbox',
@@ -258,7 +258,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         'type' => 'textarea',
                         'description' => __('This id seller private key')
                     );
-                    
+
                 if ($settings['protocol'] == 'iPizza') {
                     $options[$id . '_bank_public_key'] = array(
                         'title' => __('Bank public key', 'wc-gateway-banklink'),
@@ -305,20 +305,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $container = "";
                 $is_payments_activated = false;
 
-                $container .= '<table class="crt_3" id="bank_links"> <tbody><tr> <td class="p10" align="center"> <nobr> ';
+                $container .= '<ul class="banklink_services" id="banklink_services_list">';
                 foreach ($this->banks as $id => $bank) {
                     if ($this->settings[$id . '_enabled'] == 'yes') {
                         $is_payments_activated |= true;
-                        $container .= '<input type="radio" name="' . $this->id . '_sel_bank" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> ';
+                        $container .= '<li><input type="radio" name="' . $this->id . '_sel_bank" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> </li>';
                     }
                 }
-                $container .= '</nobr> </td> </tr> </tbody></table>';
-
-                $container .= '<div class="payment_box payment_method_' . $this->id . '" ' . ($this->chosen ? '' : 'style="display:none;"') . '>';
-                if ($this->description) {
-                    $container .= wpautop(wptexturize($this->description));
-                }
-                $container .= '</div>';
+                $container .= '</li>';
 
                 if ($is_payments_activated) {
                     echo $container;
