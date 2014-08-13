@@ -371,14 +371,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $payment_method = $order->order_custom_fields['banklink_sel_bank'][0];
 
                 $bank = $this->banks[$payment_method];
-                $protocol_name = '\Banklink\Protocol\\' . $bank['protocol'];
 
-                switch ($protocol_name) {
+                switch ($bank['protocol']) {
                     case 'iPizza':
                         $tempPrivateKeyFile = createTemporalFileforKey('merchant_private_key', $$this->settings[$payment_method . '_merchant_private_key']);
                         $tempPublicKeyFile = createTemporalFileforKey('merchant_public_key', $$this->settings[$payment_method . '_merchant_public_key']);
 
-                        $protocol = new  iPizza($this->settings[$payment_method . '_merchant_id'],
+                        $protocol = new  \Banklink\Protocol\iPizza($this->settings[$payment_method . '_merchant_id'],
                             $this->settings[$payment_method . '_merchant_name'],
                             $this->settings[$payment_method . '_merchant_account'],
                             $tempPrivateKeyFile, // private
@@ -387,7 +386,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                             true);
                         break;
                     case 'Solo':
-                        $protocol = new  Solo($this->settings[$payment_method . '_merchant_id'],
+                        $protocol = new  \Banklink\Protocol\Solo($this->settings[$payment_method . '_merchant_id'],
                             $this->settings[$payment_method . '_merchant_private_key'],
                             add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ), 
                             $this->settings[$payment_method . '_merchant_name'],
@@ -399,9 +398,9 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 $bank_name = '\Banklink\\' . $bank['class'];
 
-                $bank = new $bank_name($protocol, $testmode);
+                $banklink = new $bank_name($protocol, $testmode);
 
-                $paymentRequest = $bank->preparePaymentRequest($order_id, $order->order_total, $product_info);
+                $paymentRequest = $banklink->preparePaymentRequest($order_id, $order->order_total, $product_info);
 
                 return '<form action="' . esc_url($paymentRequest->getRequestUrl()) . '" method="post">' .
                     $paymentRequest->buildRequestHtml() .
