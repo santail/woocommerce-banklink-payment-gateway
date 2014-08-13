@@ -333,6 +333,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 global $woocommerce;
 
                 $order = new WC_Order($order_id);
+                $payment_method = $order->banklink_payment_service;
+                $bank = $this->banks[$payment_method];
                 $testmode = $this->testmode == 'yes' ? true : false;
 
                 $product_info = "Order $order_id";
@@ -340,7 +342,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 if ($this->settings['submit_on_click'] == 'yes') {
                     $woocommerce->add_inline_js('
                         jQuery("body").block({
-                            message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to PayPal to make payment.', 'woocommerce' ) ) . '",
+                            message: "' . esc_js( sprintf(__( 'Thank you for your order. We are now redirecting you to %s to make payment.', 'wc-gateway-banklink' ), $bank['title'] )) . '",
                             baseZ: 99999,
                             overlayCSS: {
                                 background: "#fff",
@@ -361,9 +363,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     ');
                 }
 
-                $payment_method = $order->banklink_payment_service;
-
-                $bank = $this->banks[$payment_method];
 
                 switch ($bank['protocol']) {
                     case 'iPizza':
@@ -397,7 +396,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
                 return '<form action="' . esc_url($paymentRequest->getRequestUrl()) . '" method="post">' .
                     $paymentRequest->buildRequestHtml() .
-                    '<input type="submit" class="button alt" id="submit_banklink_payment_form" value="' . __('Pay via Swedbank', 'wc-gateway-banklink') . '" />
+                    '<input type="submit" class="button alt" id="submit_banklink_payment_form" value="' . sprintf(__('Pay via %s', 'wc-gateway-banklink'), $bank['title']) . '" />
                     <a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart', 'wc-gateway-banklink') . '</a>
                 </form>';
             }
