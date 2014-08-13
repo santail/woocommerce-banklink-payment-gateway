@@ -150,7 +150,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     global $woocommerce;
 
                     // Check if set, if its not set add an error.
-                    if (!$_POST['banklink_sel_bank']) {
+                    if (!$_POST['banklink_payment_service']) {
                         $woocommerce->add_error(__('Please mark payment method'));
                     }
                 }
@@ -158,7 +158,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             function update_order_meta_with_custom_values($order_id)
             {
-                if ($_POST['banklink_sel_bank']) update_post_meta($order_id, 'banklink_sel_bank', esc_attr($_POST['banklink_sel_bank']));
+                if ($_POST['banklink_payment_service']) update_post_meta($order_id, '_banklink_payment_service', esc_attr($_POST['banklink_payment_service']));
             }
 
             function init_form_fields()
@@ -309,7 +309,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 foreach ($this->banks as $id => $bank) {
                     if ($this->settings[$id . '_enabled'] == 'yes') {
                         $is_payments_activated |= true;
-                        $container .= '<li><input type="radio" name="' . $this->id . '_sel_bank" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> </li>';
+                        $container .= '<li><input type="radio" name="banklink_payment_service" value="' . $id . '" checked=""> <img src="' . plugins_url('/assets/images/bank_' . $id . '.png', __FILE__) . '" height="31" align="absmiddle" id="img_' . $id . '" class="bank_icon"> </li>';
                     }
                 }
                 $container .= '</li>';
@@ -333,15 +333,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 global $woocommerce;
 
                 $order = new WC_Order($order_id);
-                $testmode = false;
-
-                if ($this->testmode == 'yes') {
-                    $testmode = true;
-                }
+                $testmode = $this->testmode == 'yes' ? true : false;
 
                 $product_info = "Order $order_id";
 
-                if ($this->settings) {
+                if ($this->settings['submit_on_click'] == 'yes') {
                     $woocommerce->add_inline_js('
                         jQuery("body").block({
                             message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to PayPal to make payment.', 'woocommerce' ) ) . '",
@@ -365,7 +361,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     ');
                 }
 
-                $payment_method = $order->order_custom_fields['banklink_sel_bank'][0];
+                $payment_method = $order->banklink_payment_service;
 
                 $bank = $this->banks[$payment_method];
 

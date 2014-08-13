@@ -145,9 +145,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                             endif;
                             ?>
                             <?php
-							if ( $gateway->get_description() ) :
+                            if ( $description = $gateway->get_description() ) :
 								echo '<div class="payment_box payment_method_' . $gateway->id . '" ' . ( $gateway->chosen ? '' : 'style="display:none;"' ) . '>';
-								$gateway->get_description();
+								echo wpautop( wptexturize( $description ) );
 								echo '</div>';
 							endif;
 							?>
