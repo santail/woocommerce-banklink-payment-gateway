@@ -94,12 +94,12 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         class WC_Gateway_Banklink extends WC_Payment_Gateway
         {
             var $banks = array(
-                "danske" => array('class' => 'DanskeBank', 'protocol' => 'iPizza', 'title' => 'Danske Bank', 'url' => 'https://www2.danskebank.ee/ibank/pizza/pizza', 'charset_parameter' => '', 'charset' => 'iso-8859-1'),
-                "lhv" => array('class' => 'LHV', 'protocol' => 'iPizza', "title" => 'LHV Pank', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "nordea" => array('class' => 'Nordea', 'protocol' => 'iPizza', "title" => 'Nordea', "url" => 'https://netbank.nordea.com/pnbepay/epayn.jsp', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "seb" => array('class' => 'SEB', 'protocol' => 'iPizza', "title" => 'SEB', "url" => 'https://www.seb.ee/cgi-bin/unet3.sh/un3min.r', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8'),
-                "swedbank" => array('class' => 'Swedbank', 'protocol' => 'iPizza', 'title' => 'Swedbank', 'url' => 'https://www.swedbank.ee/banklink', 'charset_parameter' => 'VK_ENCODING', 'charset' => 'utf-8'),
-                "estcard" => array('class' => 'SEB', 'protocol' => 'iPizza', "title" => 'Pankade Kaardikeskus', "url" => 'https://pos.estcard.ee/ecom/iPayServlet', "charset_parameter" => 'VK_CHARSET', "charset" => 'utf-8')
+                "danske" => array('class' => 'DanskeBank', 'protocol' => 'iPizza', 'title' => 'Danske Bank'),
+                "credit" => array('class' => 'Krediidipank', 'protocol' => 'iPizza', 'title' => 'Krediidipank'),
+                "lhv" => array('class' => 'LHV', 'protocol' => 'iPizza', "title" => 'LHV Pank'),
+                "nordea" => array('class' => 'Nordea', 'protocol' => 'Solo', "title" => 'Nordea'),
+                "seb" => array('class' => 'SEB', 'protocol' => 'iPizza', "title" => 'SEB'),
+                "swedbank" => array('class' => 'Swedbank', 'protocol' => 'iPizza', 'title' => 'Swedbank')
             );
 
             public function __construct()
@@ -373,12 +373,29 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                 $bank = $this->banks[$payment_method];
                 $protocol_name = '\Banklink\Protocol\\' . $bank['protocol'];
 
-                $protocol = new  $protocol_name($this->settings[$payment_method . '_merchant_id'],
-                    $this->settings[$payment_method . '_merchant_name'],
-                    $this->settings[$payment_method . '_merchant_account'],
-                    __DIR__ . '/data/' . $payment_method . '/private_key.pem', // private
-                    __DIR__ . '/data/' .$payment_method .'/public_key.pem', // public
-                    add_query_arg( 'utm_nooverride', '1', $this->get_return_url( $order ) ), true);
+                switch ($protocol_name) {
+                    case 'iPizza':
+                        $tempPrivateKeyFile = createTemporalFileforKey('merchant_private_key', $$this->settings[$payment_method . '_merchant_private_key']);
+                        $tempPublicKeyFile = createTemporalFileforKey('merchant_public_key', $$this->settings[$payment_method . '_merchant_public_key']);
+
+                        $protocol = new  iPizza($this->settings[$payment_method . '_merchant_id'],
+                            $this->settings[$payment_method . '_merchant_name'],
+                            $this->settings[$payment_method . '_merchant_account'],
+                            $tempPrivateKeyFile, // private
+                            $tempPublicKeyFile, // public
+                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ), 
+                            true);
+                        break;
+                    case 'Solo':
+                        $protocol = new  Solo($this->settings[$payment_method . '_merchant_id'],
+                            $this->settings[$payment_method . '_merchant_private_key'],
+                            add_query_arg( 'utm_nooverride', '1', $this->get_return_url($order) ), 
+                            $this->settings[$payment_method . '_merchant_name'],
+                            $this->settings[$payment_method . '_merchant_account']);
+                        break;
+                    default:
+                        break;
+                }
 
                 $bank_name = '\Banklink\\' . $bank['class'];
 
@@ -391,6 +408,17 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                     '<input type="submit" class="button alt" id="submit_banklink_payment_form" value="' . __('Pay via Swedbank', 'wc-gateway-banklink') . '" />
                     <a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart', 'wc-gateway-banklink') . '</a>
                 </form>';
+            }
+            
+            function createTemporalFileforKey($prefix, $content) 
+            {
+                $tempFile = tempnam(sys_get_temp_dir(), $prefix);
+                
+                $handle = fopen($tempFile, "w");
+                fwrite($handle, $content);
+                fclose($handle);
+                
+                return $tempFile;
             }
 
             function process_payment($order_id)
