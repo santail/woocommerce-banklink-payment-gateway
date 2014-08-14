@@ -323,13 +323,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             {
                 global $woocommerce;
 
-                echo $this->generate_banklink_form($order_id);
-            }
-
-            function generate_banklink_form($order_id)
-            {
-                global $woocommerce;
-
                 $order = new WC_Order($order_id);
                 $payment_method = $order->banklink_payment_service;
                 $bank = $this->banks[$payment_method];
@@ -362,7 +355,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
                         jQuery("#submit_banklink_payment_form").click();
                     ');
                 }
-
 
                 switch ($bank['protocol']) {
                     case 'iPizza':
